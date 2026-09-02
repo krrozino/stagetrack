@@ -39,6 +39,72 @@ export type Database = {
         };
         Relationships: [];
       };
+      activity_logs: {
+        Row: {
+          activity_date: string;
+          created_at: string;
+          description: string;
+          duration_minutes: number;
+          end_time: string;
+          group_label: string | null;
+          id: string;
+          internship_id: string;
+          notes: string | null;
+          start_time: string;
+          status: Database["public"]["Enums"]["activity_status"];
+          student_id: string;
+          teacher_name: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          activity_date: string;
+          created_at?: string;
+          description: string;
+          duration_minutes: number;
+          end_time: string;
+          group_label?: string | null;
+          id?: string;
+          internship_id: string;
+          notes?: string | null;
+          start_time: string;
+          status?: Database["public"]["Enums"]["activity_status"];
+          student_id?: string;
+          teacher_name?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          activity_date?: string;
+          created_at?: string;
+          description?: string;
+          duration_minutes?: number;
+          end_time?: string;
+          group_label?: string | null;
+          id?: string;
+          internship_id?: string;
+          notes?: string | null;
+          start_time?: string;
+          status?: Database["public"]["Enums"]["activity_status"];
+          student_id?: string;
+          teacher_name?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "activity_logs_internship_id_fkey";
+            columns: ["internship_id"];
+            isOneToOne: false;
+            referencedRelation: "internships";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "activity_logs_student_id_fkey";
+            columns: ["student_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       courses: {
         Row: {
           academic_institution_id: string;
@@ -334,6 +400,7 @@ export type Database = {
       [_ in never]: never;
     };
     Enums: {
+      activity_status: "draft" | "submitted" | "approved" | "rejected";
       app_role: "student" | "advisor" | "coordinator";
       internship_status:
         | "draft"
@@ -394,14 +461,14 @@ export type TablesInsert<
   schema: keyof DatabaseWithoutInternals;
 }
   ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Insert: infer I;
-    }
+    Insert: infer I;
+  }
     ? I
     : never
   : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
     ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-        Insert: infer I;
-      }
+      Insert: infer I;
+    }
       ? I
       : never
     : never;
@@ -419,14 +486,14 @@ export type TablesUpdate<
   schema: keyof DatabaseWithoutInternals;
 }
   ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Update: infer U;
-    }
+    Update: infer U;
+  }
     ? U
     : never
   : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
     ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-        Update: infer U;
-      }
+      Update: infer U;
+    }
       ? U
       : never
     : never;
@@ -468,6 +535,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      activity_status: ["draft", "submitted", "approved", "rejected"],
       app_role: ["student", "advisor", "coordinator"],
       internship_status: [
         "draft",
