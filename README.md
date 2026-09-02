@@ -23,9 +23,10 @@ O primeiro marco do produto permitirá que um estudante:
 - Next.js
 - TypeScript
 - Tailwind CSS
-- Firebase Authentication
-- Cloud Firestore
-- Firebase Storage
+- PostgreSQL (Supabase)
+- Supabase Auth
+- Supabase Storage
+- Row Level Security (RLS)
 - Zod
 - React Hook Form
 - Vercel
@@ -36,4 +37,4 @@ O primeiro marco do produto permitirá que um estudante:
 
 ## Documentação
 
-A documentação de produto e arquitetura ficará em [`/docs`](./docs).
+A documentação de produto e arquitetura fica em [`/docs`](./docs).
