@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { InternshipAssignmentCard } from "@/features/coordination/components/internship-assignment-card";
@@ -51,16 +52,24 @@ export default async function CoordinationPage({
         </Notice>
       ) : null}
 
-      <section>
-        <p className="text-sm font-semibold text-indigo-600 dark:text-indigo-400">
-          Coordenação
-        </p>
-        <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-950 dark:text-white">
-          Atribuição de orientadores
-        </h1>
-        <p className="mt-3 max-w-3xl text-base leading-7 text-slate-600 dark:text-slate-300">
-          Vincule cada estágio a um orientador responsável. O vínculo controla quem pode visualizar e revisar as atividades daquele estudante.
-        </p>
+      <section className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-sm font-semibold text-indigo-600 dark:text-indigo-400">
+            Coordenação
+          </p>
+          <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-950 dark:text-white">
+            Atribuição de orientadores
+          </h1>
+          <p className="mt-3 max-w-3xl text-base leading-7 text-slate-600 dark:text-slate-300">
+            Vincule cada estágio a um orientador responsável. O vínculo controla quem pode visualizar e revisar as atividades daquele estudante.
+          </p>
+        </div>
+        <Link
+          href="/coordination/people"
+          className="inline-flex h-11 shrink-0 items-center justify-center rounded-xl border border-indigo-200 bg-indigo-50 px-5 text-sm font-bold text-indigo-700 transition hover:bg-indigo-100 dark:border-indigo-900 dark:bg-indigo-950/50 dark:text-indigo-200 dark:hover:bg-indigo-950"
+        >
+          Gerenciar pessoas
+        </Link>
       </section>
 
       <section className="grid gap-4 sm:grid-cols-3">
@@ -75,7 +84,7 @@ export default async function CoordinationPage({
             Ainda não existem perfis de orientador.
           </h2>
           <p className="mt-2 text-sm leading-6 text-amber-800 dark:text-amber-200">
-            Esta tela só atribui perfis que já possuem papel de orientador ou coordenador. A gestão de papéis será tratada separadamente para manter essa permissão auditável.
+            Promova uma conta já cadastrada em <Link href="/coordination/people" className="font-bold underline">Gerenciar pessoas</Link>. Depois ela aparecerá aqui para ser atribuída a um estágio.
           </p>
         </section>
       ) : null}
