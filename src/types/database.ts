@@ -118,6 +118,51 @@ export type Database = {
           },
         ];
       };
+      organizations: {
+        Row: {
+          address: string | null;
+          city: string | null;
+          created_at: string;
+          created_by: string | null;
+          document: string | null;
+          email: string | null;
+          id: string;
+          name: string;
+          phone: string | null;
+          postal_code: string | null;
+          state: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          address?: string | null;
+          city?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          document?: string | null;
+          email?: string | null;
+          id?: string;
+          name: string;
+          phone?: string | null;
+          postal_code?: string | null;
+          state?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          address?: string | null;
+          city?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          document?: string | null;
+          email?: string | null;
+          id?: string;
+          name?: string;
+          phone?: string | null;
+          postal_code?: string | null;
+          state?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       profiles: {
         Row: {
           course_id: string | null;
@@ -152,6 +197,50 @@ export type Database = {
             columns: ["course_id"];
             isOneToOne: false;
             referencedRelation: "courses";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      supervisors: {
+        Row: {
+          created_at: string;
+          created_by: string | null;
+          email: string | null;
+          id: string;
+          name: string;
+          organization_id: string;
+          phone: string | null;
+          position: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          created_by?: string | null;
+          email?: string | null;
+          id?: string;
+          name: string;
+          organization_id: string;
+          phone?: string | null;
+          position?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string | null;
+          email?: string | null;
+          id?: string;
+          name?: string;
+          organization_id?: string;
+          phone?: string | null;
+          position?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "supervisors_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
             referencedColumns: ["id"];
           },
         ];
