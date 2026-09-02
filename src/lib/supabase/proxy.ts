@@ -7,6 +7,7 @@ const PRIVATE_ROUTE_PREFIXES = [
   "/dashboard",
   "/internships",
   "/activities",
+  "/advisor",
   "/profile",
 ] as const;
 
@@ -87,8 +88,6 @@ export async function updateSession(request: NextRequest) {
     },
   });
 
-  // Keep this call immediately after client creation. getClaims validates the
-  // JWT and may refresh the cookie-backed session through @supabase/ssr.
   const { data, error } = await supabase.auth.getClaims();
   const isAuthenticated = !error && Boolean(data?.claims?.sub);
   const pathname = request.nextUrl.pathname;
