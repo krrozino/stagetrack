@@ -31,7 +31,7 @@ export function DashboardOverview({ model }: DashboardOverviewProps) {
         </div>
 
         <Link
-          href="/internships"
+          href={internship ? "/internships" : "/internships/new"}
           className="inline-flex shrink-0 items-center justify-center rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm shadow-indigo-200 transition hover:bg-indigo-500"
         >
           {internship ? "Ver Meu Estágio" : "Configurar Meu Estágio"}

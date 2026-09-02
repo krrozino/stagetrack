@@ -3,6 +3,14 @@ import Link from "next/link";
 import { formatDuration, progressPercentage } from "../formatters";
 import type { DashboardInternshipSummary } from "../types";
 
+const STATUS_LABELS = {
+  draft: "Rascunho",
+  active: "Ativo",
+  paused: "Pausado",
+  completed: "Concluído",
+  cancelled: "Cancelado",
+} as const;
+
 type InternshipProgressCardProps = {
   internship: DashboardInternshipSummary | null;
 };
@@ -46,10 +54,10 @@ export function InternshipProgressCard({
           </div>
 
           <Link
-            href="/internships"
+            href="/internships/new"
             className="mt-7 inline-flex items-center justify-center rounded-xl bg-white px-4 py-2.5 text-sm font-bold text-slate-950 transition hover:bg-indigo-50"
           >
-            Ir para Meu Estágio
+            Cadastrar estágio
           </Link>
         </div>
       </section>
@@ -69,9 +77,14 @@ export function InternshipProgressCard({
     <section className="rounded-3xl border border-slate-200 bg-slate-950 p-6 text-white shadow-sm sm:p-8">
       <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <span className="text-xs font-bold uppercase tracking-[0.16em] text-indigo-300">
-            Progresso do estágio
-          </span>
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="text-xs font-bold uppercase tracking-[0.16em] text-indigo-300">
+              Progresso do estágio
+            </span>
+            <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs font-semibold text-slate-200">
+              {STATUS_LABELS[internship.status]}
+            </span>
+          </div>
           <h2 className="mt-2 text-2xl font-black tracking-tight">
             {internship.title}
           </h2>
