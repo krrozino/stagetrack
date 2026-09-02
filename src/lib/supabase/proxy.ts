@@ -8,6 +8,7 @@ const PRIVATE_ROUTE_PREFIXES = [
   "/internships",
   "/activities",
   "/advisor",
+  "/coordination",
   "/profile",
 ] as const;
 
