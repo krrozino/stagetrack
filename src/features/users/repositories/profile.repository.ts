@@ -3,6 +3,7 @@ import type { PostgrestError } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 
 import {
+  profileCourseIdSchema,
   profileInputSchema,
   type ProfileInput,
 } from "../schemas/profile.schema";
@@ -131,6 +132,35 @@ export async function updateCurrentProfile(
       full_name: parsed.data.fullName,
       registration_number: parsed.data.registrationNumber ?? null,
     })
+    .eq("id", auth.userId)
+    .select(PROFILE_COLUMNS)
+    .single();
+
+  if (error) {
+    return databaseError(error);
+  }
+
+  return { ok: true, data };
+}
+
+export async function setCurrentProfileCourse(
+  courseId: string,
+): Promise<ProfileResult<Profile>> {
+  const parsedCourseId = profileCourseIdSchema.safeParse(courseId);
+
+  if (!parsedCourseId.success) {
+    return repositoryError("invalid_course_id", "Invalid academic course ID.");
+  }
+
+  const auth = await getAuthenticatedUserId();
+
+  if (!auth.ok) {
+    return { ok: false, error: auth.error };
+  }
+
+  const { data, error } = await auth.supabase
+    .from("profiles")
+    .update({ course_id: parsedCourseId.data })
     .eq("id", auth.userId)
     .select(PROFILE_COLUMNS)
     .single();
