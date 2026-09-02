@@ -52,18 +52,50 @@ function validationError(error: ZodError): AuthActionState {
   };
 }
 
+function deploymentOrigin(value: string | undefined) {
+  const normalized = value?.trim();
+
+  if (!normalized) {
+    return null;
+  }
+
+  try {
+    const url = normalized.startsWith("http://") || normalized.startsWith("https://")
+      ? normalized
+      : `https://${normalized}`;
+
+    return new URL(url).origin;
+  } catch {
+    return null;
+  }
+}
+
 function getSiteUrl() {
-  const configuredUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  const configuredUrl = deploymentOrigin(process.env.NEXT_PUBLIC_SITE_URL);
 
   if (configuredUrl) {
-    return new URL(configuredUrl).origin;
+    return configuredUrl;
+  }
+
+  const productionUrl = deploymentOrigin(
+    process.env.VERCEL_PROJECT_PRODUCTION_URL,
+  );
+
+  if (productionUrl) {
+    return productionUrl;
+  }
+
+  const deploymentUrl = deploymentOrigin(process.env.VERCEL_URL);
+
+  if (deploymentUrl) {
+    return deploymentUrl;
   }
 
   if (process.env.NODE_ENV === "development") {
     return "http://localhost:3000";
   }
 
-  throw new Error("Missing NEXT_PUBLIC_SITE_URL for authentication redirects.");
+  throw new Error("Unable to resolve the public site URL for authentication redirects.");
 }
 
 function authCallbackUrl(next: string) {
