@@ -2,7 +2,10 @@ export type NavigationIconName =
   | "dashboard"
   | "internship"
   | "activities"
+  | "review"
   | "profile";
+
+export type NavigationRole = "student" | "advisor" | "coordinator";
 
 export type AuthenticatedNavigationItem = {
   href: string;
@@ -12,7 +15,7 @@ export type AuthenticatedNavigationItem = {
   icon: NavigationIconName;
 };
 
-export const authenticatedNavigation = [
+const studentNavigation = [
   {
     href: "/dashboard",
     label: "Dashboard",
@@ -43,12 +46,33 @@ export const authenticatedNavigation = [
   },
 ] as const satisfies readonly AuthenticatedNavigationItem[];
 
+const reviewerNavigation = [
+  {
+    href: "/advisor",
+    label: "Revisões",
+    mobileLabel: "Revisões",
+    description: "Fila de atividades dos seus estudantes",
+    icon: "review",
+  },
+  {
+    href: "/profile",
+    label: "Perfil",
+    mobileLabel: "Perfil",
+    description: "Dados acadêmicos e da conta",
+    icon: "profile",
+  },
+] as const satisfies readonly AuthenticatedNavigationItem[];
+
+export function getAuthenticatedNavigation(role: NavigationRole) {
+  return role === "student" ? studentNavigation : reviewerNavigation;
+}
+
 export function isNavigationItemActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function findActiveNavigationItem(pathname: string) {
-  return authenticatedNavigation.find((item) =>
+export function findActiveNavigationItem(pathname: string, role: NavigationRole) {
+  return getAuthenticatedNavigation(role).find((item) =>
     isNavigationItemActive(pathname, item.href),
   );
 }
