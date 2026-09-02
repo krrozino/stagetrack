@@ -1,6 +1,8 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
+import type { Database } from "@/types/database";
+
 export async function createClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const publishableKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
@@ -13,7 +15,7 @@ export async function createClient() {
 
   const cookieStore = await cookies();
 
-  return createServerClient(url, publishableKey, {
+  return createServerClient<Database>(url, publishableKey, {
     cookies: {
       getAll() {
         return cookieStore.getAll();
@@ -24,8 +26,8 @@ export async function createClient() {
             cookieStore.set(name, value, options);
           });
         } catch {
-          // Server Components cannot always write cookies. Session refresh will
-          // be handled at the request boundary when authentication is added.
+          // Server Components cannot always write cookies. Session refresh is
+          // handled at the request boundary by the Next.js Proxy.
         }
       },
     },
