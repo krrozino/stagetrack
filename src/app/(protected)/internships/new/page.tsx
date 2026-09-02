@@ -53,10 +53,23 @@ export default async function NewInternshipPage() {
     );
   }
 
+  const eligibleCourses = coursesResult.data.filter((course) =>
+    internshipTypesResult.data.some((type) => type.course_id === course.id),
+  );
+  const eligibleInstitutions = institutionsResult.data.filter((institution) =>
+    eligibleCourses.some(
+      (course) => course.academic_institution_id === institution.id,
+    ),
+  );
+  const eligibleCourseIds = new Set(eligibleCourses.map((course) => course.id));
+  const eligibleInternshipTypes = internshipTypesResult.data.filter((type) =>
+    eligibleCourseIds.has(type.course_id),
+  );
+
   if (
-    institutionsResult.data.length === 0 ||
-    coursesResult.data.length === 0 ||
-    internshipTypesResult.data.length === 0
+    eligibleInstitutions.length === 0 ||
+    eligibleCourses.length === 0 ||
+    eligibleInternshipTypes.length === 0
   ) {
     return (
       <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
@@ -87,9 +100,9 @@ export default async function NewInternshipPage() {
       </section>
 
       <InternshipRegistrationForm
-        institutions={institutionsResult.data}
-        courses={coursesResult.data}
-        internshipTypes={internshipTypesResult.data}
+        institutions={eligibleInstitutions}
+        courses={eligibleCourses}
+        internshipTypes={eligibleInternshipTypes}
         organizations={organizationsResult.data}
         supervisors={supervisorsResult.data}
         initialCourseId={profileResult.data.course_id}
