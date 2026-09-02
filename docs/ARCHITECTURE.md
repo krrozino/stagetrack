@@ -1,34 +1,40 @@
-# StageTrack — Arquitetura Inicial
+# StageTrack — Arquitetura
 
-## Stack
+## Stack atual
 
-- Next.js
+- Next.js App Router
+- React
 - TypeScript
 - Tailwind CSS
-- React Hook Form
 - Zod
 - PostgreSQL (Supabase)
 - Supabase Auth
-- Supabase Storage
+- `@supabase/ssr`
 - Row Level Security (RLS)
-- Vercel
+- GitHub Actions
+- Vercel como plataforma de hospedagem planejada
+
+Supabase Storage entra quando o módulo de documentos for implementado. Bibliotecas adicionais de formulários só serão incorporadas se a complexidade dos próximos fluxos justificar a dependência; os fluxos atuais usam Server Actions e recursos nativos do React.
 
 ## Estratégia
 
-O StageTrack será inicialmente uma aplicação web responsiva em um único projeto Next.js. O Supabase fornecerá PostgreSQL, autenticação, armazenamento de arquivos e APIs de acesso aos dados. O MVP não terá um backend separado.
+O StageTrack é uma aplicação web responsiva em um único projeto Next.js. O Supabase fornece PostgreSQL, autenticação e Data API. O MVP não possui um backend separado.
 
 ```text
-Next.js
+Browser
    ↓
-Supabase SDK / SSR
-   ├── Auth
-   ├── PostgreSQL
-   └── Storage
+Next.js App Router
+   ├── Server Components / Server Actions
+   └── Client Components quando necessário
+          ↓
+      Supabase SSR / SDK
+          ├── Auth
+          └── PostgreSQL + RLS
 ```
 
-O domínio é fortemente relacional. PostgreSQL será usado para representar relações entre alunos, cursos, estágios, instituições, supervisores, orientadores, atividades e documentos com foreign keys e constraints.
+O domínio é fortemente relacional. PostgreSQL representa relações entre alunos, cursos, estágios, instituições, supervisores, orientadores, atividades e documentos com foreign keys, constraints e índices.
 
-## Estrutura sugerida
+## Estrutura do repositório
 
 ```text
 stagetrack/
@@ -42,41 +48,44 @@ stagetrack/
 │   ├── app/
 │   ├── components/
 │   ├── features/
-│   ├── hooks/
 │   ├── lib/
 │   │   └── supabase/
-│   ├── schemas/
-│   ├── services/
-│   ├── types/
-│   └── utils/
+│   └── types/
 ├── .env.example
 └── README.md
 ```
 
 ## Organização por domínio
 
+A aplicação evita concentrar regras em componentes de página. Funcionalidades são agrupadas por domínio:
+
 ```text
 src/features/
 ├── auth/
 ├── users/
-├── internships/
-├── internship-types/
-├── organizations/
-├── supervisors/
-└── activities/
+├── navigation/
+├── dashboard/
+├── internships/       # Sprint 1
+├── internship-types/  # Sprint 1
+├── organizations/     # Sprint 1
+├── supervisors/       # Sprint 1
+└── activities/        # Sprint 2
 ```
 
-Cada domínio poderá conter seus próprios `components`, `services`, `schemas`, `types`, `hooks` e `utils` quando necessário.
+Cada domínio pode conter `components`, `repositories`, `services`, `schemas`, `types`, `config` e utilitários conforme necessidade real.
 
 ## Acesso a dados
 
-Chamadas ao Supabase não devem ficar espalhadas pela interface. Serviços/repositories concentrarão operações de domínio.
+Chamadas ao Supabase não devem ficar espalhadas pela interface. Repositories concentram operações de domínio.
+
+Exemplo de direção para Sprint 1/2:
 
 ```text
 internshipRepository
 - createInternship()
 - getInternship()
 - getStudentInternships()
+- getCurrentInternship()
 - updateInternship()
 
 activityRepository
@@ -86,63 +95,79 @@ activityRepository
 - getInternshipActivities()
 ```
 
-A autorização não dependerá desses repositories: o PostgreSQL também aplicará RLS para impedir acesso indevido mesmo em chamadas diretas à Data API.
+A autorização nunca dependerá apenas desses repositories: o PostgreSQL também aplica RLS para impedir acesso indevido mesmo em chamadas diretas à Data API.
 
-## Tabelas iniciais
+## Estado atual do banco
+
+### `profiles`
+
+Implementada e ligada 1:1 ao Supabase Auth:
 
 ```text
-profiles
+id                  UUID PK / FK auth.users.id
+full_name           text
+role                app_role
+registration_number text nullable
+created_at          timestamptz
+updated_at          timestamptz
+```
+
+Papéis disponíveis:
+
+```text
+student
+advisor
+coordinator
+```
+
+O usuário não possui privilégio para promover o próprio `role`.
+
+## Schema planejado para Sprint 1
+
+A Sprint 1 adicionará de forma incremental:
+
+```text
+academic_institutions
 courses
 internship_types
 organizations
 supervisors
 internships
-activity_logs
 ```
 
-Tabelas futuras:
+`profiles.course_id` será adicionado quando `courses` existir.
+
+Tabelas posteriores:
 
 ```text
-documents
-notifications
-audit_logs
+activity_logs  # Sprint 2
+documents      # Sprint 4
+notifications  # pós-MVP / quando necessário
+audit_logs     # evolução institucional
 ```
 
-## Relações principais
+## Relações-alvo do núcleo
 
 ```text
 auth.users
     │
     └── profiles
           │
-          ├── courses
+          ├── course
+          │     └── academic_institution
           │
           └── internships
-                ├── internship_types
-                ├── organizations
+                ├── internship_type
+                ├── organization
                 │     └── supervisors
-                ├── advisor (profiles)
-                ├── activity_logs
-                └── documents
+                ├── advisor (profiles, futuro)
+                ├── activity_logs (Sprint 2)
+                └── documents (Sprint 4)
 ```
 
-IDs de domínio utilizarão UUIDs. Relações serão protegidas por foreign keys sempre que aplicável.
+IDs de domínio utilizam UUIDs. Relações devem ser protegidas por foreign keys sempre que aplicável.
 
-## Modelos principais
-
-### Profile
-
-```text
-id (FK auth.users.id)
-name
-role
-course_id
-registration_number
-created_at
-updated_at
-```
-
-### Internship
+## Modelo-alvo de estágio
 
 ```text
 id
@@ -159,7 +184,19 @@ created_at
 updated_at
 ```
 
-### ActivityLog
+Status previstos:
+
+```text
+draft
+active
+paused
+completed
+cancelled
+```
+
+`required_minutes` será um snapshot da modalidade selecionada para preservar o histórico caso a configuração acadêmica seja alterada no futuro.
+
+## Modelo-alvo de atividade
 
 ```text
 id
@@ -181,19 +218,17 @@ updated_at
 
 ## Tempo e carga horária
 
-A fonte de verdade para duração será `duration_minutes`, nunca horas decimais.
+A fonte de verdade para duração é minuto inteiro, nunca hora decimal.
 
 ```text
 13:00 → 17:30 = 270 minutos
 ```
 
-Horas cumpridas, horas restantes e percentual serão valores derivados dos registros. Constraints e validações de aplicação devem impedir durações inválidas.
+Horas cumpridas, horas restantes e percentual são valores derivados dos registros. Constraints e validações de aplicação devem impedir durações inválidas.
 
-## Autenticação
+## Autenticação e sessão
 
-Supabase Auth será responsável por cadastro, login, logout, recuperação de senha e sessão.
-
-O usuário autenticado existe em `auth.users`. Dados acadêmicos e de perfil ficarão em `public.profiles`, usando o mesmo UUID:
+Supabase Auth é responsável por cadastro, login, logout, recuperação de senha e sessão.
 
 ```text
 Supabase Auth
@@ -203,22 +238,48 @@ auth.users.id
 public.profiles.id
 ```
 
-## Segurança
+O cliente Supabase server-side é criado por requisição. `cookies()` é lido antes do uso do cliente para manter o contexto request-bound no Next.js.
 
-A interface não será considerada uma barreira de segurança.
+### Proteção de rotas
 
-As tabelas expostas pela Data API utilizarão Row Level Security. Políticas iniciais seguirão o princípio de menor privilégio:
+A proteção usa duas camadas:
 
-- aluno acessa apenas os próprios dados;
-- orientador acessa apenas estudantes vinculados quando essa função existir;
-- coordenação acessa apenas seu contexto institucional;
-- operações administrativas não usam chaves privilegiadas no navegador.
+```text
+Request
+  ↓
+Next.js Proxy + auth.getClaims()
+  ↓
+layout (protected) + auth.getClaims()
+  ↓
+Página privada
+```
 
-A `service_role`/secret key nunca deverá ser exposta em variáveis `NEXT_PUBLIC_*`.
+`auth.getSession()` não é usado como prova de identidade no servidor.
+
+Rotas autenticadas são `force-dynamic` para evitar ISR/cache compartilhado de conteúdo dependente de sessão.
+
+Detalhes adicionais ficam em [`AUTHENTICATION.md`](./AUTHENTICATION.md).
+
+## Segurança de dados
+
+A interface não é considerada uma barreira de segurança.
+
+Tabelas expostas pela Data API utilizam Row Level Security e grants mínimos.
+
+Princípios:
+
+- aluno acessa apenas os próprios dados quando a entidade é pessoal;
+- dados de catálogo terão leitura controlada e mutação administrativa;
+- orientador acessará apenas estudantes vinculados quando essa função existir;
+- coordenação acessará apenas seu contexto institucional quando essa função existir;
+- operações administrativas não usam chaves privilegiadas no navegador;
+- `service_role`/secret keys nunca entram em variáveis `NEXT_PUBLIC_*`.
+
+Após alterações DDL, security e performance advisors do Supabase devem ser revisados.
 
 ## Migrations
 
-Mudanças de schema deverão ser versionadas em `supabase/migrations`.
+Mudanças de schema são versionadas em `supabase/migrations`.
 
 Isso inclui:
 
@@ -226,12 +287,14 @@ Isso inclui:
 - foreign keys;
 - constraints;
 - índices;
-- funções/triggers quando necessários;
+- enums;
+- funções/triggers;
+- grants;
 - políticas RLS.
 
 Evitar alterações manuais no banco que não sejam reproduzíveis por migration.
 
-## Rotas iniciais
+## Rotas
 
 Públicas:
 
@@ -240,6 +303,9 @@ Públicas:
 /login
 /register
 /forgot-password
+/reset-password
+/auth/callback
+/auth/confirm
 ```
 
 Privadas:
@@ -252,14 +318,19 @@ Privadas:
 /profile
 ```
 
+## Dashboard
+
+O dashboard já possui um `DashboardViewModel` desacoplado da fonte de dados. Enquanto não existe estágio persistido, a página utiliza um modelo vazio honesto. Na STG-019, a fonte será substituída por queries reais sem reescrever os componentes visuais.
+
 ## Qualidade
 
 Antes de mergear funcionalidades relevantes:
 
 ```text
-lint
-typecheck
-build
+npm ci
+npm run lint
+npm run typecheck
+npm run build
 ```
 
 Testes automatizados serão adicionados progressivamente, priorizando cálculos, regras, autorização e fluxos críticos.
