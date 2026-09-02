@@ -162,16 +162,41 @@ A aplicação não depende de customização de templates para funcionar durante
 
 ## URLs de redirecionamento
 
-Durante desenvolvimento, o Supabase deverá permitir URLs locais utilizadas pelo app, por exemplo:
+A aplicação resolve a origem pública nesta ordem:
 
 ```text
-http://localhost:3000/auth/callback
-http://localhost:3000/auth/confirm
+NEXT_PUBLIC_SITE_URL
+VERCEL_PROJECT_PRODUCTION_URL
+VERCEL_URL
+localhost (somente desenvolvimento)
 ```
 
-Quando houver deploy, os domínios da Vercel/produção deverão ser adicionados à allow list antes dos testes de confirmação e recuperação de senha.
+Valores Vercel sem protocolo recebem `https://` antes de serem usados. Isso evita gerar callbacks para `localhost` ou URLs inválidas quando `NEXT_PUBLIC_SITE_URL` não estiver presente no runtime.
 
-Links sensíveis iniciados pela aplicação usam `NEXT_PUBLIC_SITE_URL` em vez de construir a origem a partir do header `Host` da requisição.
+### Produção atual
+
+URL canônica usada nos testes hospedados:
+
+```text
+https://stagetrack-ashy.vercel.app
+```
+
+No Supabase Dashboard, em **Authentication → URL Configuration**, configurar:
+
+```text
+Site URL
+https://stagetrack-ashy.vercel.app
+
+Redirect URLs
+https://stagetrack-ashy.vercel.app/**
+https://stagetrack-krrozino-s-projects.vercel.app/**
+https://*-krrozino-s-projects.vercel.app/**
+http://localhost:3000/**
+```
+
+A allow list é necessária porque o Supabase só aceita `emailRedirectTo`/`redirectTo` para destinos explicitamente permitidos. O Site URL também funciona como fallback quando um template de e-mail não utiliza o redirect fornecido pela aplicação.
+
+Para produção, preferir o domínio exato. O wildcard da Vercel existe apenas para previews do projeto.
 
 ## Chaves
 
@@ -202,4 +227,5 @@ A CI utiliza `npm ci`, portanto qualquer divergência entre o manifesto e o lock
 - STG-004 — fundação Supabase Auth e SSR: concluída;
 - STG-005 — perfil de usuário e RLS: concluída;
 - STG-006 — telas e fluxos de autenticação: concluída;
-- STG-007 — proteção de rotas privadas e shell autenticado: em validação.
+- STG-007 — proteção de rotas privadas e shell autenticado: concluída;
+- STG-021 — correções de primeiro deploy e redirects hospedados: em validação.
