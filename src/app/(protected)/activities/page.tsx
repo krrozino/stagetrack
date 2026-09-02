@@ -186,12 +186,7 @@ export default async function ActivitiesPage({ searchParams }: ActivitiesPagePro
                   <input required type="date" name="activityDate" className={inputClass} />
                 </Field>
                 <Field label="Turma / grupo">
-                  <input
-                    type="text"
-                    name="groupLabel"
-                    placeholder="Ex.: 8º ano A"
-                    className={inputClass}
-                  />
+                  <input type="text" name="groupLabel" placeholder="Ex.: 8º ano A" className={inputClass} />
                 </Field>
                 <Field label="Início">
                   <input required type="time" name="startTime" className={inputClass} />
@@ -200,38 +195,19 @@ export default async function ActivitiesPage({ searchParams }: ActivitiesPagePro
                   <input required type="time" name="endTime" className={inputClass} />
                 </Field>
                 <Field label="Professor / supervisor presente" full>
-                  <input
-                    type="text"
-                    name="teacherName"
-                    placeholder="Nome do professor acompanhado"
-                    className={inputClass}
-                  />
+                  <input type="text" name="teacherName" placeholder="Nome do professor acompanhado" className={inputClass} />
                 </Field>
                 <Field label="Descrição da atividade" full>
-                  <textarea
-                    required
-                    name="description"
-                    rows={4}
-                    placeholder="Descreva o que foi acompanhado ou realizado durante o estágio."
-                    className={textareaClass}
-                  />
+                  <textarea required name="description" rows={4} placeholder="Descreva o que foi acompanhado ou realizado durante o estágio." className={textareaClass} />
                 </Field>
                 <Field label="Observações" full>
-                  <textarea
-                    name="notes"
-                    rows={3}
-                    placeholder="Opcional: anotações, ocorrências ou pontos importantes."
-                    className={textareaClass}
-                  />
+                  <textarea name="notes" rows={3} placeholder="Opcional: anotações, ocorrências ou pontos importantes." className={textareaClass} />
                 </Field>
                 <div className="sm:col-span-2 flex flex-col gap-3 border-t border-slate-200 pt-5 sm:flex-row sm:items-center sm:justify-between dark:border-slate-800">
                   <p className="text-xs leading-5 text-slate-500 dark:text-slate-400">
                     O registro ficará pendente. Até a revisão, as horas aparecem como provisórias.
                   </p>
-                  <button
-                    type="submit"
-                    className="inline-flex h-12 shrink-0 items-center justify-center rounded-xl bg-indigo-600 px-6 text-sm font-bold text-white transition hover:bg-indigo-500"
-                  >
+                  <button type="submit" className="inline-flex h-12 shrink-0 items-center justify-center rounded-xl bg-indigo-600 px-6 text-sm font-bold text-white transition hover:bg-indigo-500">
                     Registrar atividade
                   </button>
                 </div>
@@ -243,20 +219,14 @@ export default async function ActivitiesPage({ searchParams }: ActivitiesPagePro
             <div className="flex items-end justify-between gap-4">
               <div>
                 <p className="text-sm font-semibold text-indigo-600 dark:text-indigo-400">Histórico</p>
-                <h2 className="mt-1 text-xl font-bold text-slate-950 dark:text-white">
-                  Atividades registradas
-                </h2>
+                <h2 className="mt-1 text-xl font-bold text-slate-950 dark:text-white">Atividades registradas</h2>
               </div>
-              <span className="text-sm text-slate-500 dark:text-slate-400">
-                {activities.length} registro(s)
-              </span>
+              <span className="text-sm text-slate-500 dark:text-slate-400">{activities.length} registro(s)</span>
             </div>
 
             {activities.length === 0 ? (
               <div className="mt-4 rounded-3xl border border-dashed border-slate-300 bg-white p-8 text-center dark:border-slate-700 dark:bg-slate-900">
-                <p className="font-semibold text-slate-900 dark:text-white">
-                  Nenhuma atividade registrada ainda.
-                </p>
+                <p className="font-semibold text-slate-900 dark:text-white">Nenhuma atividade registrada ainda.</p>
                 <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
                   O primeiro registro aparecerá aqui e também alimentará seu dashboard.
                 </p>
@@ -264,90 +234,75 @@ export default async function ActivitiesPage({ searchParams }: ActivitiesPagePro
             ) : (
               <div className="mt-4 space-y-3">
                 {activities.map((activity) => {
-                  const editable =
-                    activity.status === "draft" || activity.status === "submitted";
+                  const editable = activity.status === "draft" || activity.status === "submitted";
                   const deleteAction = deleteActivityAction.bind(null, activity.id);
+                  const reviewed = activity.status === "approved" || activity.status === "rejected";
 
                   return (
-                    <article
-                      key={activity.id}
-                      className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900"
-                    >
+                    <article key={activity.id} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
                       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                         <div className="min-w-0 flex-1">
                           <div className="flex flex-wrap items-center gap-2">
-                            <span
-                              className={`rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider ${STATUS_STYLES[activity.status]}`}
-                            >
+                            <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider ${STATUS_STYLES[activity.status]}`}>
                               {STATUS_LABELS[activity.status]}
                             </span>
-                            <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400">
-                              {durationLabel(activity.duration_minutes)}
-                            </span>
+                            <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400">{durationLabel(activity.duration_minutes)}</span>
                           </div>
                           <h3 className="mt-3 font-bold text-slate-950 dark:text-white">
                             {dateLabel(activity.activity_date)} · {timeLabel(activity.start_time)}–{timeLabel(activity.end_time)}
                           </h3>
-                          <p className="mt-2 whitespace-pre-line text-sm leading-6 text-slate-600 dark:text-slate-300">
-                            {activity.description}
-                          </p>
+                          <p className="mt-2 whitespace-pre-line text-sm leading-6 text-slate-600 dark:text-slate-300">{activity.description}</p>
 
-                          {(activity.group_label || activity.teacher_name) ? (
+                          {activity.group_label || activity.teacher_name ? (
                             <div className="mt-4 flex flex-wrap gap-2 text-xs text-slate-500 dark:text-slate-400">
-                              {activity.group_label ? (
-                                <span className="rounded-lg bg-slate-100 px-2.5 py-1.5 dark:bg-slate-800">
-                                  {activity.group_label}
-                                </span>
-                              ) : null}
-                              {activity.teacher_name ? (
-                                <span className="rounded-lg bg-slate-100 px-2.5 py-1.5 dark:bg-slate-800">
-                                  {activity.teacher_name}
-                                </span>
-                              ) : null}
+                              {activity.group_label ? <span className="rounded-lg bg-slate-100 px-2.5 py-1.5 dark:bg-slate-800">{activity.group_label}</span> : null}
+                              {activity.teacher_name ? <span className="rounded-lg bg-slate-100 px-2.5 py-1.5 dark:bg-slate-800">{activity.teacher_name}</span> : null}
                             </div>
                           ) : null}
 
                           {activity.notes ? (
-                            <div className="mt-4 border-t border-slate-100 pt-4 text-sm leading-6 text-slate-500 dark:border-slate-800 dark:text-slate-400">
-                              {activity.notes}
+                            <div className="mt-4 border-t border-slate-100 pt-4 text-sm leading-6 text-slate-500 dark:border-slate-800 dark:text-slate-400">{activity.notes}</div>
+                          ) : null}
+
+                          {reviewed ? (
+                            <div className={`mt-4 rounded-2xl border p-4 ${activity.status === "approved" ? "border-emerald-200 bg-emerald-50 dark:border-emerald-900 dark:bg-emerald-950/30" : "border-rose-200 bg-rose-50 dark:border-rose-900 dark:bg-rose-950/30"}`}>
+                              <p className={`text-sm font-bold ${activity.status === "approved" ? "text-emerald-900 dark:text-emerald-100" : "text-rose-900 dark:text-rose-100"}`}>
+                                {activity.status === "approved" ? "Atividade validada pelo orientador" : "Atividade não validada pelo orientador"}
+                              </p>
+                              {activity.review_comment ? (
+                                <p className={`mt-2 text-sm leading-6 ${activity.status === "approved" ? "text-emerald-800 dark:text-emerald-200" : "text-rose-800 dark:text-rose-200"}`}>
+                                  Parecer: {activity.review_comment}
+                                </p>
+                              ) : (
+                                <p className={`mt-2 text-sm ${activity.status === "approved" ? "text-emerald-700 dark:text-emerald-300" : "text-rose-700 dark:text-rose-300"}`}>
+                                  Sem observações adicionais.
+                                </p>
+                              )}
+                              {activity.reviewed_at ? (
+                                <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                                  Revisado em {new Date(activity.reviewed_at).toLocaleString("pt-BR")}
+                                </p>
+                              ) : null}
                             </div>
                           ) : null}
                         </div>
 
                         {editable ? (
                           <div className="flex shrink-0 gap-2">
-                            <Link
-                              href={`/activities/${activity.id}/edit`}
-                              className="inline-flex h-10 items-center justify-center rounded-xl border border-slate-300 px-4 text-sm font-bold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
-                            >
-                              Editar
-                            </Link>
+                            <Link href={`/activities/${activity.id}/edit`} className="inline-flex h-10 items-center justify-center rounded-xl border border-slate-300 px-4 text-sm font-bold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800">Editar</Link>
                             <details className="relative">
-                              <summary className="flex h-10 cursor-pointer list-none items-center rounded-xl border border-rose-200 px-4 text-sm font-bold text-rose-700 transition hover:bg-rose-50 dark:border-rose-900 dark:text-rose-300 dark:hover:bg-rose-950/40">
-                                Excluir
-                              </summary>
+                              <summary className="flex h-10 cursor-pointer list-none items-center rounded-xl border border-rose-200 px-4 text-sm font-bold text-rose-700 transition hover:bg-rose-50 dark:border-rose-900 dark:text-rose-300 dark:hover:bg-rose-950/40">Excluir</summary>
                               <div className="absolute right-0 z-10 mt-2 w-64 rounded-2xl border border-slate-200 bg-white p-4 shadow-xl dark:border-slate-700 dark:bg-slate-900">
-                                <p className="text-sm font-semibold text-slate-900 dark:text-white">
-                                  Excluir esta atividade?
-                                </p>
-                                <p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">
-                                  As horas serão removidas do progresso. Esta ação não pode ser desfeita.
-                                </p>
+                                <p className="text-sm font-semibold text-slate-900 dark:text-white">Excluir esta atividade?</p>
+                                <p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">As horas serão removidas do progresso. Esta ação não pode ser desfeita.</p>
                                 <form action={deleteAction} className="mt-3">
-                                  <button
-                                    type="submit"
-                                    className="inline-flex h-9 w-full items-center justify-center rounded-lg bg-rose-600 px-3 text-xs font-bold text-white hover:bg-rose-500"
-                                  >
-                                    Confirmar exclusão
-                                  </button>
+                                  <button type="submit" className="inline-flex h-9 w-full items-center justify-center rounded-lg bg-rose-600 px-3 text-xs font-bold text-white hover:bg-rose-500">Confirmar exclusão</button>
                                 </form>
                               </div>
                             </details>
                           </div>
                         ) : (
-                          <span className="shrink-0 text-xs font-semibold text-slate-400">
-                            Registro bloqueado após revisão
-                          </span>
+                          <span className="shrink-0 text-xs font-semibold text-slate-400">Registro bloqueado após revisão</span>
                         )}
                       </div>
                     </article>
@@ -362,20 +317,10 @@ export default async function ActivitiesPage({ searchParams }: ActivitiesPagePro
   );
 }
 
-const inputClass =
-  "mt-2 h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:border-slate-700 dark:bg-slate-950 dark:text-white";
-const textareaClass =
-  "mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm leading-6 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:border-slate-700 dark:bg-slate-950 dark:text-white";
+const inputClass = "mt-2 h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:border-slate-700 dark:bg-slate-950 dark:text-white";
+const textareaClass = "mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm leading-6 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:border-slate-700 dark:bg-slate-950 dark:text-white";
 
-function Field({
-  label,
-  full = false,
-  children,
-}: {
-  label: string;
-  full?: boolean;
-  children: React.ReactNode;
-}) {
+function Field({ label, full = false, children }: { label: string; full?: boolean; children: React.ReactNode }) {
   return (
     <label className={full ? "block sm:col-span-2" : "block"}>
       <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">{label}</span>
@@ -393,21 +338,10 @@ function Metric({ value, label }: { value: string; label: string }) {
   );
 }
 
-function Notice({
-  tone,
-  children,
-}: {
-  tone: "success" | "error";
-  children: React.ReactNode;
-}) {
-  const classes =
-    tone === "success"
-      ? "border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200"
-      : "border-rose-200 bg-rose-50 text-rose-800 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-200";
+function Notice({ tone, children }: { tone: "success" | "error"; children: React.ReactNode }) {
+  const classes = tone === "success"
+    ? "border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200"
+    : "border-rose-200 bg-rose-50 text-rose-800 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-200";
 
-  return (
-    <div className={`rounded-2xl border p-4 text-sm font-semibold ${classes}`}>
-      {children}
-    </div>
-  );
+  return <div className={`rounded-2xl border p-4 text-sm font-semibold ${classes}`}>{children}</div>;
 }
