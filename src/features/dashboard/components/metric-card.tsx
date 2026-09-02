@@ -6,10 +6,10 @@ type MetricCardProps = {
 };
 
 const accentClasses = {
-  indigo: "bg-indigo-50 text-indigo-700 ring-indigo-100",
-  emerald: "bg-emerald-50 text-emerald-700 ring-emerald-100",
-  amber: "bg-amber-50 text-amber-700 ring-amber-100",
-  slate: "bg-slate-100 text-slate-700 ring-slate-200",
+  indigo: "bg-indigo-500 ring-indigo-100",
+  emerald: "bg-emerald-500 ring-emerald-100",
+  amber: "bg-amber-500 ring-amber-100",
+  slate: "bg-slate-500 ring-slate-200",
 } as const;
 
 export function MetricCard({ label, value, helper, accent }: MetricCardProps) {
