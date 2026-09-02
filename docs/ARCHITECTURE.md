@@ -7,23 +7,26 @@
 - Tailwind CSS
 - React Hook Form
 - Zod
-- Firebase Authentication
-- Cloud Firestore
-- Firebase Storage
+- PostgreSQL (Supabase)
+- Supabase Auth
+- Supabase Storage
+- Row Level Security (RLS)
 - Vercel
 
 ## Estratégia
 
-O StageTrack será inicialmente uma aplicação web responsiva em um único projeto Next.js. O Firebase fornecerá autenticação, persistência e armazenamento de arquivos. O MVP não terá backend separado.
+O StageTrack será inicialmente uma aplicação web responsiva em um único projeto Next.js. O Supabase fornecerá PostgreSQL, autenticação, armazenamento de arquivos e APIs de acesso aos dados. O MVP não terá um backend separado.
 
 ```text
 Next.js
    ↓
-Firebase SDK
-   ├── Authentication
-   ├── Firestore
+Supabase SDK / SSR
+   ├── Auth
+   ├── PostgreSQL
    └── Storage
 ```
+
+O domínio é fortemente relacional. PostgreSQL será usado para representar relações entre alunos, cursos, estágios, instituições, supervisores, orientadores, atividades e documentos com foreign keys e constraints.
 
 ## Estrutura sugerida
 
@@ -33,20 +36,19 @@ stagetrack/
 │   └── workflows/
 ├── docs/
 ├── public/
+├── supabase/
+│   └── migrations/
 ├── src/
 │   ├── app/
 │   ├── components/
 │   ├── features/
 │   ├── hooks/
 │   ├── lib/
+│   │   └── supabase/
 │   ├── schemas/
 │   ├── services/
 │   ├── types/
 │   └── utils/
-├── firestore.rules
-├── firestore.indexes.json
-├── firebase.json
-├── .firebaserc
 ├── .env.example
 └── README.md
 ```
@@ -68,7 +70,7 @@ Cada domínio poderá conter seus próprios `components`, `services`, `schemas`,
 
 ## Acesso a dados
 
-Chamadas ao Firestore não devem ficar espalhadas pela interface. Serviços/repositories concentrarão operações como:
+Chamadas ao Supabase não devem ficar espalhadas pela interface. Serviços/repositories concentrarão operações de domínio.
 
 ```text
 internshipRepository
@@ -84,105 +86,150 @@ activityRepository
 - getInternshipActivities()
 ```
 
-## Coleções iniciais
+A autorização não dependerá desses repositories: o PostgreSQL também aplicará RLS para impedir acesso indevido mesmo em chamadas diretas à Data API.
+
+## Tabelas iniciais
 
 ```text
-/users/{userId}
-/courses/{courseId}
-/internshipTypes/{internshipTypeId}
-/organizations/{organizationId}
-/supervisors/{supervisorId}
-/internships/{internshipId}
-/activityLogs/{activityLogId}
+profiles
+courses
+internship_types
+organizations
+supervisors
+internships
+activity_logs
 ```
 
-Coleções futuras:
+Tabelas futuras:
 
 ```text
-/documents
-/notifications
-/auditLogs
+documents
+notifications
+audit_logs
 ```
+
+## Relações principais
+
+```text
+auth.users
+    │
+    └── profiles
+          │
+          ├── courses
+          │
+          └── internships
+                ├── internship_types
+                ├── organizations
+                │     └── supervisors
+                ├── advisor (profiles)
+                ├── activity_logs
+                └── documents
+```
+
+IDs de domínio utilizarão UUIDs. Relações serão protegidas por foreign keys sempre que aplicável.
 
 ## Modelos principais
 
-### User
+### Profile
 
 ```text
-id
+id (FK auth.users.id)
 name
-email
 role
-courseId
-registrationNumber
-createdAt
-updatedAt
+course_id
+registration_number
+created_at
+updated_at
 ```
 
 ### Internship
 
 ```text
 id
-studentId
-internshipTypeId
-organizationId
-supervisorId
-advisorId
-startDate
-expectedEndDate
-requiredMinutes
+student_id
+internship_type_id
+organization_id
+supervisor_id
+advisor_id
+start_date
+expected_end_date
+required_minutes
 status
-createdAt
-updatedAt
+created_at
+updated_at
 ```
 
 ### ActivityLog
 
 ```text
 id
-internshipId
-studentId
+internship_id
+student_id
 date
-startTime
-endTime
-durationMinutes
-classGroup
-teacherName
+start_time
+end_time
+duration_minutes
+class_group
+teacher_name
 description
 notes
 status
-advisorComment
-createdAt
-updatedAt
+advisor_comment
+created_at
+updated_at
 ```
 
 ## Tempo e carga horária
 
-A fonte de verdade para duração será `durationMinutes`, nunca horas decimais.
-
-Exemplo:
+A fonte de verdade para duração será `duration_minutes`, nunca horas decimais.
 
 ```text
 13:00 → 17:30 = 270 minutos
 ```
 
-Horas cumpridas, horas restantes e percentual serão valores derivados dos registros.
+Horas cumpridas, horas restantes e percentual serão valores derivados dos registros. Constraints e validações de aplicação devem impedir durações inválidas.
 
 ## Autenticação
 
-O UID do Firebase Authentication será utilizado como ID do documento do usuário no Firestore:
+Supabase Auth será responsável por cadastro, login, logout, recuperação de senha e sessão.
+
+O usuário autenticado existe em `auth.users`. Dados acadêmicos e de perfil ficarão em `public.profiles`, usando o mesmo UUID:
 
 ```text
-Firebase Authentication
-       ↓
-      UID
-       ↓
-/users/{uid}
+Supabase Auth
+   ↓
+auth.users.id
+   ↓
+public.profiles.id
 ```
 
 ## Segurança
 
-A interface não será considerada uma barreira de segurança. As regras do Firestore deverão impedir acesso cruzado entre alunos e preparar autorização para orientadores e coordenação.
+A interface não será considerada uma barreira de segurança.
+
+As tabelas expostas pela Data API utilizarão Row Level Security. Políticas iniciais seguirão o princípio de menor privilégio:
+
+- aluno acessa apenas os próprios dados;
+- orientador acessa apenas estudantes vinculados quando essa função existir;
+- coordenação acessa apenas seu contexto institucional;
+- operações administrativas não usam chaves privilegiadas no navegador.
+
+A `service_role`/secret key nunca deverá ser exposta em variáveis `NEXT_PUBLIC_*`.
+
+## Migrations
+
+Mudanças de schema deverão ser versionadas em `supabase/migrations`.
+
+Isso inclui:
+
+- tabelas;
+- foreign keys;
+- constraints;
+- índices;
+- funções/triggers quando necessários;
+- políticas RLS.
+
+Evitar alterações manuais no banco que não sejam reproduzíveis por migration.
 
 ## Rotas iniciais
 
@@ -215,7 +262,7 @@ typecheck
 build
 ```
 
-Testes automatizados serão adicionados progressivamente, priorizando cálculos, regras e fluxos críticos.
+Testes automatizados serão adicionados progressivamente, priorizando cálculos, regras, autorização e fluxos críticos.
 
 ## Convenções Git
 
@@ -225,7 +272,7 @@ Conventional Commits:
 feat: add internship creation flow
 fix: prevent invalid activity duration
 docs: update product requirements
-refactor: isolate firestore repository
+refactor: isolate internship repository
 test: add duration calculation tests
 ```
 
