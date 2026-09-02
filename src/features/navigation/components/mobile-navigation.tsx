@@ -13,7 +13,12 @@ import { NavigationIcon } from "./navigation-icon";
 export function MobileNavigation({ role }: { role: NavigationRole }) {
   const pathname = usePathname();
   const navigation = getAuthenticatedNavigation(role);
-  const gridClass = navigation.length === 2 ? "grid-cols-2" : "grid-cols-4";
+  const gridClass =
+    navigation.length === 2
+      ? "grid-cols-2"
+      : navigation.length === 3
+        ? "grid-cols-3"
+        : "grid-cols-4";
 
   return (
     <nav
