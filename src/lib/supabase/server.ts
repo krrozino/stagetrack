@@ -4,6 +4,11 @@ import { cookies } from "next/headers";
 import type { Database } from "@/types/database";
 
 export async function createClient() {
+  // Read the request cookies before validating runtime environment variables.
+  // This makes Next.js treat every server Supabase client as request-bound and
+  // prevents cookie-dependent pages from being prerendered at build time.
+  const cookieStore = await cookies();
+
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const publishableKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
@@ -12,8 +17,6 @@ export async function createClient() {
       "Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY.",
     );
   }
-
-  const cookieStore = await cookies();
 
   return createServerClient<Database>(url, publishableKey, {
     cookies: {
