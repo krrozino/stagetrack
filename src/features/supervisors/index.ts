@@ -1,5 +1,6 @@
 export {
   createSupervisor,
+  listStudentSupervisors,
   listSupervisorsForOrganization,
   updateSupervisor,
 } from "./repositories/supervisor.repository";
