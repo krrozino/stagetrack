@@ -3,6 +3,7 @@ export type NavigationIconName =
   | "internship"
   | "activities"
   | "review"
+  | "coordination"
   | "profile";
 
 export type NavigationRole = "student" | "advisor" | "coordinator";
@@ -46,7 +47,31 @@ const studentNavigation = [
   },
 ] as const satisfies readonly AuthenticatedNavigationItem[];
 
-const reviewerNavigation = [
+const advisorNavigation = [
+  {
+    href: "/advisor",
+    label: "Revisões",
+    mobileLabel: "Revisões",
+    description: "Fila de atividades dos seus estudantes",
+    icon: "review",
+  },
+  {
+    href: "/profile",
+    label: "Perfil",
+    mobileLabel: "Perfil",
+    description: "Dados acadêmicos e da conta",
+    icon: "profile",
+  },
+] as const satisfies readonly AuthenticatedNavigationItem[];
+
+const coordinatorNavigation = [
+  {
+    href: "/coordination",
+    label: "Coordenação",
+    mobileLabel: "Coordenação",
+    description: "Atribuição de orientadores aos estágios",
+    icon: "coordination",
+  },
   {
     href: "/advisor",
     label: "Revisões",
@@ -64,7 +89,15 @@ const reviewerNavigation = [
 ] as const satisfies readonly AuthenticatedNavigationItem[];
 
 export function getAuthenticatedNavigation(role: NavigationRole) {
-  return role === "student" ? studentNavigation : reviewerNavigation;
+  if (role === "student") {
+    return studentNavigation;
+  }
+
+  if (role === "coordinator") {
+    return coordinatorNavigation;
+  }
+
+  return advisorNavigation;
 }
 
 export function isNavigationItemActive(pathname: string, href: string) {
