@@ -12,8 +12,115 @@ export type Database = {
   };
   public: {
     Tables: {
+      academic_institutions: {
+        Row: {
+          acronym: string | null;
+          active: boolean;
+          created_at: string;
+          id: string;
+          name: string;
+          updated_at: string;
+        };
+        Insert: {
+          acronym?: string | null;
+          active?: boolean;
+          created_at?: string;
+          id?: string;
+          name: string;
+          updated_at?: string;
+        };
+        Update: {
+          acronym?: string | null;
+          active?: boolean;
+          created_at?: string;
+          id?: string;
+          name?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      courses: {
+        Row: {
+          academic_institution_id: string;
+          active: boolean;
+          code: string | null;
+          created_at: string;
+          id: string;
+          name: string;
+          updated_at: string;
+        };
+        Insert: {
+          academic_institution_id: string;
+          active?: boolean;
+          code?: string | null;
+          created_at?: string;
+          id?: string;
+          name: string;
+          updated_at?: string;
+        };
+        Update: {
+          academic_institution_id?: string;
+          active?: boolean;
+          code?: string | null;
+          created_at?: string;
+          id?: string;
+          name?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "courses_academic_institution_id_fkey";
+            columns: ["academic_institution_id"];
+            isOneToOne: false;
+            referencedRelation: "academic_institutions";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      internship_types: {
+        Row: {
+          active: boolean;
+          course_id: string;
+          created_at: string;
+          description: string | null;
+          id: string;
+          name: string;
+          required_minutes: number;
+          updated_at: string;
+        };
+        Insert: {
+          active?: boolean;
+          course_id: string;
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          name: string;
+          required_minutes: number;
+          updated_at?: string;
+        };
+        Update: {
+          active?: boolean;
+          course_id?: string;
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          name?: string;
+          required_minutes?: number;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "internship_types_course_id_fkey";
+            columns: ["course_id"];
+            isOneToOne: false;
+            referencedRelation: "courses";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       profiles: {
         Row: {
+          course_id: string | null;
           created_at: string;
           full_name: string;
           id: string;
@@ -22,6 +129,7 @@ export type Database = {
           updated_at: string;
         };
         Insert: {
+          course_id?: string | null;
           created_at?: string;
           full_name: string;
           id: string;
@@ -30,6 +138,7 @@ export type Database = {
           updated_at?: string;
         };
         Update: {
+          course_id?: string | null;
           created_at?: string;
           full_name?: string;
           id?: string;
@@ -37,7 +146,15 @@ export type Database = {
           role?: Database["public"]["Enums"]["app_role"];
           updated_at?: string;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "profiles_course_id_fkey";
+            columns: ["course_id"];
+            isOneToOne: false;
+            referencedRelation: "courses";
+            referencedColumns: ["id"];
+          },
+        ];
       };
     };
     Views: {
