@@ -5,6 +5,7 @@ export {
   listStudentInternships,
   updateInternship,
 } from "./repositories/internship.repository";
+export { listStudentInternshipOverviews } from "./repositories/internship-overview.repository";
 
 export {
   createInternshipInputSchema,
@@ -26,6 +27,12 @@ export type {
   InternshipResult,
   InternshipStatus,
 } from "./types";
+export type {
+  InternshipOverview,
+  InternshipTypeSummary,
+  OrganizationSummary,
+  SupervisorSummary,
+} from "./types.overview";
 export type {
   InternshipRegistrationActionState,
   InternshipRegistrationField,
