@@ -50,6 +50,9 @@ export type Database = {
           id: string;
           internship_id: string;
           notes: string | null;
+          review_comment: string | null;
+          reviewed_at: string | null;
+          reviewed_by: string | null;
           start_time: string;
           status: Database["public"]["Enums"]["activity_status"];
           student_id: string;
@@ -66,6 +69,9 @@ export type Database = {
           id?: string;
           internship_id: string;
           notes?: string | null;
+          review_comment?: string | null;
+          reviewed_at?: string | null;
+          reviewed_by?: string | null;
           start_time: string;
           status?: Database["public"]["Enums"]["activity_status"];
           student_id?: string;
@@ -82,6 +88,9 @@ export type Database = {
           id?: string;
           internship_id?: string;
           notes?: string | null;
+          review_comment?: string | null;
+          reviewed_at?: string | null;
+          reviewed_by?: string | null;
           start_time?: string;
           status?: Database["public"]["Enums"]["activity_status"];
           student_id?: string;
@@ -97,7 +106,79 @@ export type Database = {
             referencedColumns: ["id"];
           },
           {
+            foreignKeyName: "activity_logs_reviewed_by_fkey";
+            columns: ["reviewed_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
             foreignKeyName: "activity_logs_student_id_fkey";
+            columns: ["student_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      activity_status_events: {
+        Row: {
+          activity_id: string;
+          actor_id: string;
+          comment: string | null;
+          created_at: string;
+          from_status: Database["public"]["Enums"]["activity_status"] | null;
+          id: string;
+          internship_id: string;
+          student_id: string;
+          to_status: Database["public"]["Enums"]["activity_status"];
+        };
+        Insert: {
+          activity_id: string;
+          actor_id: string;
+          comment?: string | null;
+          created_at?: string;
+          from_status?: Database["public"]["Enums"]["activity_status"] | null;
+          id?: string;
+          internship_id: string;
+          student_id: string;
+          to_status: Database["public"]["Enums"]["activity_status"];
+        };
+        Update: {
+          activity_id?: string;
+          actor_id?: string;
+          comment?: string | null;
+          created_at?: string;
+          from_status?: Database["public"]["Enums"]["activity_status"] | null;
+          id?: string;
+          internship_id?: string;
+          student_id?: string;
+          to_status?: Database["public"]["Enums"]["activity_status"];
+        };
+        Relationships: [
+          {
+            foreignKeyName: "activity_status_events_activity_id_fkey";
+            columns: ["activity_id"];
+            isOneToOne: false;
+            referencedRelation: "activity_logs";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "activity_status_events_actor_id_fkey";
+            columns: ["actor_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "activity_status_events_internship_id_fkey";
+            columns: ["internship_id"];
+            isOneToOne: false;
+            referencedRelation: "internships";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "activity_status_events_student_id_fkey";
             columns: ["student_id"];
             isOneToOne: false;
             referencedRelation: "profiles";
@@ -310,6 +391,48 @@ export type Database = {
         };
         Relationships: [];
       };
+      profile_role_change_requests: {
+        Row: {
+          actor_id: string;
+          created_at: string;
+          id: string;
+          previous_role: Database["public"]["Enums"]["app_role"];
+          requested_role: Database["public"]["Enums"]["app_role"];
+          target_profile_id: string;
+        };
+        Insert: {
+          actor_id?: string;
+          created_at?: string;
+          id?: string;
+          previous_role: Database["public"]["Enums"]["app_role"];
+          requested_role: Database["public"]["Enums"]["app_role"];
+          target_profile_id: string;
+        };
+        Update: {
+          actor_id?: string;
+          created_at?: string;
+          id?: string;
+          previous_role?: Database["public"]["Enums"]["app_role"];
+          requested_role?: Database["public"]["Enums"]["app_role"];
+          target_profile_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "profile_role_change_requests_actor_id_fkey";
+            columns: ["actor_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "profile_role_change_requests_target_profile_id_fkey";
+            columns: ["target_profile_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       profiles: {
         Row: {
           course_id: string | null;
@@ -461,14 +584,14 @@ export type TablesInsert<
   schema: keyof DatabaseWithoutInternals;
 }
   ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-    Insert: infer I;
-  }
+      Insert: infer I;
+    }
     ? I
     : never
   : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
     ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-      Insert: infer I;
-    }
+        Insert: infer I;
+      }
       ? I
       : never
     : never;
@@ -486,14 +609,14 @@ export type TablesUpdate<
   schema: keyof DatabaseWithoutInternals;
 }
   ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-    Update: infer U;
-  }
+      Update: infer U;
+    }
     ? U
     : never
   : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
     ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-      Update: infer U;
-    }
+        Update: infer U;
+      }
       ? U
       : never
     : never;
