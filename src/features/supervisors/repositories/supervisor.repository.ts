@@ -64,6 +64,27 @@ function supervisorPayload(input: SupervisorInput) {
   };
 }
 
+export async function listStudentSupervisors(): Promise<
+  SupervisorResult<Supervisor[]>
+> {
+  const auth = await getAuthenticatedContext();
+
+  if (!auth.ok) {
+    return { ok: false, error: auth.error };
+  }
+
+  const { data, error } = await auth.supabase
+    .from("supervisors")
+    .select(SUPERVISOR_COLUMNS)
+    .order("name", { ascending: true });
+
+  if (error) {
+    return databaseError(error);
+  }
+
+  return { ok: true, data };
+}
+
 export async function listSupervisorsForOrganization(
   organizationId: string,
 ): Promise<SupervisorResult<Supervisor[]>> {
