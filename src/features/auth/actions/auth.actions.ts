@@ -135,7 +135,7 @@ export async function loginAction(
     return profileError;
   }
 
-  redirect("/");
+  redirect("/dashboard");
 }
 
 export async function registerAction(
@@ -183,7 +183,7 @@ export async function registerAction(
     };
   }
 
-  redirect("/");
+  redirect("/dashboard");
 }
 
 export async function forgotPasswordAction(
@@ -236,4 +236,9 @@ export async function resetPasswordAction(
   }
 
   redirect("/login?message=password-updated");
+}
+
+export async function logoutAction() {
+  await logout();
+  redirect("/login");
 }
