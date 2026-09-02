@@ -92,13 +92,15 @@
 - **RN010** — não é permitido registrar atividades em estágio concluído ou cancelado.
 - **RN011** — histórico de estágios concluídos deve ser preservado.
 - **RN012** — progresso visual é limitado a 100%, mesmo que a carga registrada ultrapasse a mínima.
+- **RN013** — relações entre entidades devem preservar integridade referencial no banco sempre que aplicável.
 
 ## Requisitos não funcionais
 
 - **RNF001** — interface responsiva.
 - **RNF002** — rotas privadas exigem autenticação.
-- **RNF003** — autorização deve ser validada também no backend/regras do Firestore.
-- **RNF004** — dados devem possuir persistência confiável.
+- **RNF003** — autorização deve ser validada no banco com Row Level Security (RLS), não apenas na interface.
+- **RNF004** — dados devem possuir persistência confiável e integridade referencial.
 - **RNF005** — interface deve priorizar clareza e usabilidade.
 - **RNF006** — consultas devem carregar apenas os dados necessários.
 - **RNF007** — arquitetura deve permitir evolução para auditoria e múltiplas instituições.
+- **RNF008** — credenciais privilegiadas do Supabase nunca devem ser expostas no navegador.
