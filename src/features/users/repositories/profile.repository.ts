@@ -9,7 +9,7 @@ import {
 import type { Profile, ProfileResult } from "../types";
 
 const PROFILE_COLUMNS =
-  "id,full_name,role,registration_number,created_at,updated_at" as const;
+  "id,full_name,role,registration_number,course_id,created_at,updated_at" as const;
 
 function repositoryError(
   code: string,
