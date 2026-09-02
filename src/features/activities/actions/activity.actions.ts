@@ -64,7 +64,10 @@ export async function updateActivityAction(
   redirect("/activities?updated=1");
 }
 
-export async function deleteActivityAction(activityId: string) {
+export async function deleteActivityAction(
+  activityId: string,
+  _formData: FormData,
+) {
   const result = await deleteActivity(activityId);
 
   if (!result.ok) {
