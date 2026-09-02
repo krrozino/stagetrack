@@ -44,27 +44,62 @@ function databaseError(error: PostgrestError): InternshipResult<never> {
   };
 }
 
-export async function listStudentInternshipOverviews(): Promise<
-  InternshipResult<InternshipOverview[]>
-> {
+async function getAuthenticatedContext() {
   const supabase = await createClient();
-  const { data: claimsData, error: claimsError } = await supabase.auth.getClaims();
-  const userId = claimsData?.claims?.sub;
+  const { data, error } = await supabase.auth.getClaims();
+  const userId = data?.claims?.sub;
 
-  if (claimsError || !userId) {
+  if (error || !userId) {
     return {
-      ok: false,
+      ok: false as const,
       error: {
-        code: claimsError?.code ?? "not_authenticated",
-        message: claimsError?.message ?? "Authenticated user is required.",
+        code: error?.code ?? "not_authenticated",
+        message: error?.message ?? "Authenticated user is required.",
       },
     };
   }
 
-  const { data, error } = await supabase
+  return { ok: true as const, supabase, userId };
+}
+
+export async function getCurrentInternshipOverview(): Promise<
+  InternshipResult<InternshipOverview | null>
+> {
+  const auth = await getAuthenticatedContext();
+
+  if (!auth.ok) {
+    return { ok: false, error: auth.error };
+  }
+
+  const { data, error } = await auth.supabase
     .from("internships")
     .select(INTERNSHIP_OVERVIEW_COLUMNS)
-    .eq("student_id", userId)
+    .eq("student_id", auth.userId)
+    .in("status", ["active", "paused", "draft"])
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    return databaseError(error);
+  }
+
+  return { ok: true, data: data as InternshipOverview | null };
+}
+
+export async function listStudentInternshipOverviews(): Promise<
+  InternshipResult<InternshipOverview[]>
+> {
+  const auth = await getAuthenticatedContext();
+
+  if (!auth.ok) {
+    return { ok: false, error: auth.error };
+  }
+
+  const { data, error } = await auth.supabase
+    .from("internships")
+    .select(INTERNSHIP_OVERVIEW_COLUMNS)
+    .eq("student_id", auth.userId)
     .order("created_at", { ascending: false });
 
   if (error) {
