@@ -118,6 +118,87 @@ export type Database = {
           },
         ];
       };
+      internships: {
+        Row: {
+          advisor_id: string | null;
+          created_at: string;
+          expected_end_date: string | null;
+          id: string;
+          internship_type_id: string;
+          organization_id: string;
+          required_minutes: number;
+          start_date: string;
+          status: Database["public"]["Enums"]["internship_status"];
+          student_id: string;
+          supervisor_id: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          advisor_id?: string | null;
+          created_at?: string;
+          expected_end_date?: string | null;
+          id?: string;
+          internship_type_id: string;
+          organization_id: string;
+          required_minutes: number;
+          start_date: string;
+          status?: Database["public"]["Enums"]["internship_status"];
+          student_id?: string;
+          supervisor_id?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          advisor_id?: string | null;
+          created_at?: string;
+          expected_end_date?: string | null;
+          id?: string;
+          internship_type_id?: string;
+          organization_id?: string;
+          required_minutes?: number;
+          start_date?: string;
+          status?: Database["public"]["Enums"]["internship_status"];
+          student_id?: string;
+          supervisor_id?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "internships_advisor_id_fkey";
+            columns: ["advisor_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "internships_internship_type_id_fkey";
+            columns: ["internship_type_id"];
+            isOneToOne: false;
+            referencedRelation: "internship_types";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "internships_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "internships_student_id_fkey";
+            columns: ["student_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "internships_supervisor_organization_fkey";
+            columns: ["supervisor_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "supervisors";
+            referencedColumns: ["id", "organization_id"];
+          },
+        ];
+      };
       organizations: {
         Row: {
           address: string | null;
@@ -254,6 +335,12 @@ export type Database = {
     };
     Enums: {
       app_role: "student" | "advisor" | "coordinator";
+      internship_status:
+        | "draft"
+        | "active"
+        | "paused"
+        | "completed"
+        | "cancelled";
     };
     CompositeTypes: {
       [_ in never]: never;
@@ -382,6 +469,13 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["student", "advisor", "coordinator"],
+      internship_status: [
+        "draft",
+        "active",
+        "paused",
+        "completed",
+        "cancelled",
+      ],
     },
   },
 } as const;
