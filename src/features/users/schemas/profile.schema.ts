@@ -11,6 +11,8 @@ const registrationNumberSchema = z.preprocess(
   z.string().trim().min(1).max(50).nullable().optional(),
 );
 
+export const profileCourseIdSchema = z.string().uuid();
+
 export const profileInputSchema = z.object({
   fullName: z.string().trim().min(2).max(120),
   registrationNumber: registrationNumberSchema,
