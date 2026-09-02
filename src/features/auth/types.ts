@@ -33,3 +33,19 @@ export type PasswordResetInput = {
   email: string;
   redirectTo?: string;
 };
+
+export type AuthFormField =
+  | "fullName"
+  | "email"
+  | "password"
+  | "confirmPassword";
+
+export type AuthActionState = {
+  status: "idle" | "error" | "success";
+  message?: string;
+  fieldErrors?: Partial<Record<AuthFormField, string>>;
+};
+
+export const INITIAL_AUTH_ACTION_STATE: AuthActionState = {
+  status: "idle",
+};
