@@ -5,11 +5,15 @@ import { usePathname } from "next/navigation";
 
 import { logoutAction } from "@/features/auth/actions/auth.actions";
 
-import { findActiveNavigationItem } from "../config/authenticated-navigation";
+import {
+  findActiveNavigationItem,
+  type NavigationRole,
+} from "../config/authenticated-navigation";
 
 type AuthenticatedHeaderProps = {
   displayName: string;
   roleLabel: string;
+  role: NavigationRole;
 };
 
 function initials(name: string) {
@@ -24,18 +28,20 @@ function initials(name: string) {
 export function AuthenticatedHeader({
   displayName,
   roleLabel,
+  role,
 }: AuthenticatedHeaderProps) {
   const pathname = usePathname();
-  const activeItem = findActiveNavigationItem(pathname);
+  const activeItem = findActiveNavigationItem(pathname, role);
+  const homeHref = role === "student" ? "/dashboard" : "/advisor";
 
   return (
     <header className="sticky top-0 z-30 border-b border-slate-200/80 bg-white/90 backdrop-blur-xl dark:border-slate-800/80 dark:bg-slate-950/90">
       <div className="flex min-h-18 items-center justify-between gap-4 px-5 py-3 sm:px-6 lg:min-h-20 lg:px-8">
         <div className="flex min-w-0 items-center gap-3">
           <Link
-            href="/dashboard"
+            href={homeHref}
             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-indigo-600 text-xs font-black text-white shadow-sm shadow-indigo-200 dark:shadow-none lg:hidden"
-            aria-label="Ir para o dashboard"
+            aria-label="Ir para a página inicial da área autenticada"
           >
             ST
           </Link>
