@@ -27,16 +27,15 @@ export default async function NewInternshipPage() {
     listStudentSupervisors(),
   ]);
 
-  const hasLoadError =
+  if (
     !profileResult.ok ||
     !profileResult.data ||
     !institutionsResult.ok ||
     !coursesResult.ok ||
     !internshipTypesResult.ok ||
     !organizationsResult.ok ||
-    !supervisorsResult.ok;
-
-  if (hasLoadError) {
+    !supervisorsResult.ok
+  ) {
     return (
       <section className="rounded-3xl border border-amber-200 bg-amber-50 p-6 sm:p-8">
         <p className="text-sm font-semibold text-amber-800">Cadastro indisponível</p>
@@ -53,6 +52,7 @@ export default async function NewInternshipPage() {
     );
   }
 
+  const profile = profileResult.data;
   const eligibleCourses = coursesResult.data.filter((course) =>
     internshipTypesResult.data.some((type) => type.course_id === course.id),
   );
@@ -105,7 +105,7 @@ export default async function NewInternshipPage() {
         internshipTypes={eligibleInternshipTypes}
         organizations={organizationsResult.data}
         supervisors={supervisorsResult.data}
-        initialCourseId={profileResult.data.course_id}
+        initialCourseId={profile.course_id}
       />
     </div>
   );
