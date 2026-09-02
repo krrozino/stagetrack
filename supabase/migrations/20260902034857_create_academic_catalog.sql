@@ -119,7 +119,7 @@ execute function public.set_catalog_updated_at();
 revoke all on function public.set_catalog_updated_at()
 from public, anon, authenticated;
 
-a lter table public.academic_institutions enable row level security;
+alter table public.academic_institutions enable row level security;
 alter table public.courses enable row level security;
 alter table public.internship_types enable row level security;
 
