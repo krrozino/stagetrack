@@ -122,6 +122,12 @@ Nunca expor no navegador ou versionar:
 
 A segurança dos dados acessíveis pelo cliente será garantida principalmente por autenticação, grants adequados e Row Level Security.
 
+## Dependências reproduzíveis
+
+As versões diretas do Supabase são fixadas em `package.json` e a árvore completa de dependências fica registrada em `package-lock.json`.
+
+A CI utiliza `npm ci`, portanto qualquer divergência entre o manifesto e o lockfile deve falhar antes dos checks de qualidade.
+
 ## Próximas etapas
 
 - STG-005: modelo de perfil de usuário e RLS;
