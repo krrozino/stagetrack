@@ -4,11 +4,12 @@ import { redirect } from "next/navigation";
 import { AuthenticatedHeader } from "@/features/navigation/components/authenticated-header";
 import { MobileNavigation } from "@/features/navigation/components/mobile-navigation";
 import { Sidebar } from "@/features/navigation/components/sidebar";
+import type { NavigationRole } from "@/features/navigation/config/authenticated-navigation";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
-function roleLabel(role: "student" | "advisor" | "coordinator" | undefined) {
+function roleLabel(role: NavigationRole) {
   switch (role) {
     case "advisor":
       return "Orientador";
@@ -39,13 +40,15 @@ export default async function ProtectedLayout({
 
   const email = typeof claims.email === "string" ? claims.email : null;
   const displayName = profile?.full_name ?? email ?? "Usuário StageTrack";
-  const currentRoleLabel = roleLabel(profile?.role);
+  const role: NavigationRole = profile?.role ?? "student";
+  const currentRoleLabel = roleLabel(role);
 
   return (
-    <div className="flex min-h-screen bg-slate-50 text-slate-950">
+    <div className="flex min-h-screen bg-slate-50 text-slate-950 dark:bg-slate-950 dark:text-slate-50">
       <Sidebar
         displayName={displayName}
         roleLabel={currentRoleLabel}
+        role={role}
         email={email}
       />
 
@@ -53,6 +56,7 @@ export default async function ProtectedLayout({
         <AuthenticatedHeader
           displayName={displayName}
           roleLabel={currentRoleLabel}
+          role={role}
         />
 
         <main className="mx-auto w-full max-w-7xl px-5 py-7 pb-28 sm:px-6 sm:py-8 lg:px-8 lg:py-10 lg:pb-10">
@@ -60,7 +64,7 @@ export default async function ProtectedLayout({
         </main>
       </div>
 
-      <MobileNavigation />
+      <MobileNavigation role={role} />
     </div>
   );
 }
