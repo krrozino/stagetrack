@@ -15,5 +15,6 @@ export type {
   ActivityError,
   ActivityLog,
   ActivityResult,
+  ActivityStatusEvent,
   ActivitySummary,
 } from "./types";
