@@ -54,6 +54,21 @@ export async function listActiveAcademicInstitutions(): Promise<
   return { ok: true, data };
 }
 
+export async function listAllActiveCourses(): Promise<CatalogResult<Course[]>> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("courses")
+    .select(COURSE_COLUMNS)
+    .eq("active", true)
+    .order("name", { ascending: true });
+
+  if (error) {
+    return databaseError(error);
+  }
+
+  return { ok: true, data };
+}
+
 export async function listActiveCourses(
   academicInstitutionId: string,
 ): Promise<CatalogResult<Course[]>> {
@@ -68,6 +83,23 @@ export async function listActiveCourses(
     .from("courses")
     .select(COURSE_COLUMNS)
     .eq("academic_institution_id", parsedId.data)
+    .eq("active", true)
+    .order("name", { ascending: true });
+
+  if (error) {
+    return databaseError(error);
+  }
+
+  return { ok: true, data };
+}
+
+export async function listAllActiveInternshipTypes(): Promise<
+  CatalogResult<InternshipType[]>
+> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("internship_types")
+    .select(INTERNSHIP_TYPE_COLUMNS)
     .eq("active", true)
     .order("name", { ascending: true });
 
