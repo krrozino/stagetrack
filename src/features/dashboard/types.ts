@@ -1,3 +1,5 @@
+import type { InternshipStatus } from "@/features/internships";
+
 export type DashboardInternshipSummary = {
   id: string;
   title: string;
@@ -5,6 +7,7 @@ export type DashboardInternshipSummary = {
   completedMinutes: number;
   requiredMinutes: number;
   expectedEndDate: string | null;
+  status: InternshipStatus;
 };
 
 export type DashboardActivitySummary = {
