@@ -16,15 +16,18 @@ import type {
   ActivitySummary,
 } from "../types";
 
-const ACTIVITY_COLUMNS =
-  "id,internship_id,student_id,activity_date,start_time,end_time,duration_minutes,group_label,teacher_name,description,notes,status,created_at,updated_at" as const;
-
 function repositoryError(code: string, message: string): ActivityResult<never> {
   return { ok: false, error: { code, message } };
 }
 
 function databaseError(error: PostgrestError): ActivityResult<never> {
   return repositoryError(error.code, error.message);
+}
+
+function withReviewMetadata<T>(data: T) {
+  return data as unknown as T extends Array<unknown>
+    ? ActivityLog[]
+    : ActivityLog;
 }
 
 async function getAuthenticatedContext() {
@@ -74,22 +77,20 @@ export async function createActivity(
     notes: parsed.data.notes,
   };
 
-  // `student_id`, `duration_minutes` and `status` are protected and prepared
-  // by PostgreSQL. Generated types cannot infer values populated by triggers.
   const insertPayload =
     clientPayload as unknown as TablesInsert<"activity_logs">;
 
   const { data, error } = await auth.supabase
     .from("activity_logs")
     .insert(insertPayload)
-    .select(ACTIVITY_COLUMNS)
+    .select("*")
     .single();
 
   if (error) {
     return databaseError(error);
   }
 
-  return { ok: true, data };
+  return { ok: true, data: withReviewMetadata(data) };
 }
 
 export async function getActivity(
@@ -109,7 +110,7 @@ export async function getActivity(
 
   const { data, error } = await auth.supabase
     .from("activity_logs")
-    .select(ACTIVITY_COLUMNS)
+    .select("*")
     .eq("id", parsedId.data)
     .eq("student_id", auth.userId)
     .maybeSingle();
@@ -118,7 +119,7 @@ export async function getActivity(
     return databaseError(error);
   }
 
-  return { ok: true, data };
+  return { ok: true, data: data ? withReviewMetadata(data) : null };
 }
 
 export async function listActivities(
@@ -132,7 +133,7 @@ export async function listActivities(
 
   const { data, error } = await auth.supabase
     .from("activity_logs")
-    .select(ACTIVITY_COLUMNS)
+    .select("*")
     .eq("internship_id", internshipId)
     .eq("student_id", auth.userId)
     .order("activity_date", { ascending: false })
@@ -142,7 +143,7 @@ export async function listActivities(
     return databaseError(error);
   }
 
-  return { ok: true, data };
+  return { ok: true, data: withReviewMetadata(data) };
 }
 
 export async function updateActivity(
@@ -185,7 +186,7 @@ export async function updateActivity(
     .eq("id", parsedId.data)
     .eq("student_id", auth.userId)
     .in("status", ["draft", "submitted"])
-    .select(ACTIVITY_COLUMNS)
+    .select("*")
     .maybeSingle();
 
   if (error) {
@@ -199,7 +200,7 @@ export async function updateActivity(
     );
   }
 
-  return { ok: true, data };
+  return { ok: true, data: withReviewMetadata(data) };
 }
 
 export async function deleteActivity(

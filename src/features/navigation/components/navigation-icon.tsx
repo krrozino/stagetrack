@@ -40,6 +40,15 @@ export function NavigationIcon({
           <path d="M8 18h4.5" />
         </svg>
       );
+    case "review":
+      return (
+        <svg {...common}>
+          <path d="M7 3.5h8l3 3V20a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1Z" />
+          <path d="M15 3.5V7h3.5" />
+          <path d="m9 13 2 2 4-4" />
+          <path d="M9 18h6" />
+        </svg>
+      );
     case "profile":
       return (
         <svg {...common}>
