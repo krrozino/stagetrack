@@ -33,3 +33,28 @@ export type CoordinationWorkspace = {
   advisors: AdvisorCandidate[];
   internships: CoordinationInternship[];
 };
+
+export type ManageableProfile = {
+  id: string;
+  fullName: string;
+  registrationNumber: string | null;
+  role: "student" | "advisor";
+  assignedInternshipCount: number;
+  createdAt: string;
+};
+
+export type RoleChangeHistoryItem = {
+  id: string;
+  targetProfileId: string;
+  targetName: string;
+  actorName: string;
+  previousRole: "student" | "advisor";
+  requestedRole: "student" | "advisor";
+  createdAt: string;
+};
+
+export type CoordinationPeopleWorkspace = {
+  coordinatorName: string;
+  profiles: ManageableProfile[];
+  recentChanges: RoleChangeHistoryItem[];
+};
