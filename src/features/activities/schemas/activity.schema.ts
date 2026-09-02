@@ -15,9 +15,8 @@ const optionalText = (max: number) =>
     .max(max)
     .transform((value) => (value.length > 0 ? value : null));
 
-export const createActivityInputSchema = z
+const activityFieldsSchema = z
   .object({
-    internshipId: z.uuid(),
     activityDate: z.string().regex(datePattern, "Informe uma data válida."),
     startTime: z.string().regex(timePattern, "Informe o horário inicial."),
     endTime: z.string().regex(timePattern, "Informe o horário final."),
@@ -38,4 +37,14 @@ export const createActivityInputSchema = z
     },
   );
 
+export const activityIdSchema = z.uuid();
+
+export const createActivityInputSchema = z.intersection(
+  z.object({ internshipId: z.uuid() }),
+  activityFieldsSchema,
+);
+
+export const updateActivityInputSchema = activityFieldsSchema;
+
 export type CreateActivityInput = z.infer<typeof createActivityInputSchema>;
+export type UpdateActivityInput = z.infer<typeof updateActivityInputSchema>;
