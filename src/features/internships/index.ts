@@ -5,7 +5,10 @@ export {
   listStudentInternships,
   updateInternship,
 } from "./repositories/internship.repository";
-export { listStudentInternshipOverviews } from "./repositories/internship-overview.repository";
+export {
+  getCurrentInternshipOverview,
+  listStudentInternshipOverviews,
+} from "./repositories/internship-overview.repository";
 
 export {
   createInternshipInputSchema,
