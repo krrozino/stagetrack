@@ -49,6 +49,15 @@ export function NavigationIcon({
           <path d="M9 18h6" />
         </svg>
       );
+    case "coordination":
+      return (
+        <svg {...common}>
+          <circle cx="9" cy="8" r="3" />
+          <path d="M3.5 19a5.5 5.5 0 0 1 11 0" />
+          <circle cx="17" cy="9" r="2.25" />
+          <path d="M15.5 14.5a4.25 4.25 0 0 1 5 4.2" />
+        </svg>
+      );
     case "profile":
       return (
         <svg {...common}>

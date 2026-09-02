@@ -20,12 +20,20 @@ type SidebarProps = {
 };
 
 function initials(name: string) {
-  return name
-    .trim()
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
-    .join("") || "ST";
+  return (
+    name
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase())
+      .join("") || "ST"
+  );
+}
+
+function homeHref(role: NavigationRole) {
+  if (role === "student") return "/dashboard";
+  if (role === "coordinator") return "/coordination";
+  return "/advisor";
 }
 
 export function Sidebar({ displayName, roleLabel, role, email }: SidebarProps) {
@@ -35,7 +43,7 @@ export function Sidebar({ displayName, roleLabel, role, email }: SidebarProps) {
   return (
     <aside className="hidden h-screen w-72 shrink-0 border-r border-slate-200 bg-white lg:sticky lg:top-0 lg:flex lg:flex-col dark:border-slate-800 dark:bg-slate-950">
       <div className="border-b border-slate-100 px-6 py-7 dark:border-slate-800">
-        <Link href={role === "student" ? "/dashboard" : "/advisor"} className="inline-flex items-center gap-3 group">
+        <Link href={homeHref(role)} className="inline-flex items-center gap-3 group">
           <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-600 text-sm font-black tracking-tight text-white shadow-sm shadow-indigo-200 transition group-hover:bg-indigo-500 dark:shadow-none">
             ST
           </span>
