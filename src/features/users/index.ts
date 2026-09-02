@@ -1,10 +1,14 @@
 export {
   createCurrentProfile,
   getCurrentProfile,
+  setCurrentProfileCourse,
   updateCurrentProfile,
 } from "./repositories/profile.repository";
 
-export { profileInputSchema } from "./schemas/profile.schema";
+export {
+  profileCourseIdSchema,
+  profileInputSchema,
+} from "./schemas/profile.schema";
 
 export type { ProfileInput } from "./schemas/profile.schema";
 export type {
