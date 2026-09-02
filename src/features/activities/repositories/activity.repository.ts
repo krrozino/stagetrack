@@ -1,11 +1,14 @@
 import type { PostgrestError } from "@supabase/supabase-js";
 
 import { createClient } from "@/lib/supabase/server";
-import type { TablesInsert } from "@/types/database";
+import type { TablesInsert, TablesUpdate } from "@/types/database";
 
 import {
+  activityIdSchema,
   createActivityInputSchema,
+  updateActivityInputSchema,
   type CreateActivityInput,
+  type UpdateActivityInput,
 } from "../schemas/activity.schema";
 import type {
   ActivityLog,
@@ -89,6 +92,35 @@ export async function createActivity(
   return { ok: true, data };
 }
 
+export async function getActivity(
+  activityId: string,
+): Promise<ActivityResult<ActivityLog | null>> {
+  const parsedId = activityIdSchema.safeParse(activityId);
+
+  if (!parsedId.success) {
+    return repositoryError("invalid_activity_id", "Atividade inválida.");
+  }
+
+  const auth = await getAuthenticatedContext();
+
+  if (!auth.ok) {
+    return { ok: false, error: auth.error };
+  }
+
+  const { data, error } = await auth.supabase
+    .from("activity_logs")
+    .select(ACTIVITY_COLUMNS)
+    .eq("id", parsedId.data)
+    .eq("student_id", auth.userId)
+    .maybeSingle();
+
+  if (error) {
+    return databaseError(error);
+  }
+
+  return { ok: true, data };
+}
+
 export async function listActivities(
   internshipId: string,
 ): Promise<ActivityResult<ActivityLog[]>> {
@@ -108,6 +140,101 @@ export async function listActivities(
 
   if (error) {
     return databaseError(error);
+  }
+
+  return { ok: true, data };
+}
+
+export async function updateActivity(
+  activityId: string,
+  input: UpdateActivityInput,
+): Promise<ActivityResult<ActivityLog>> {
+  const parsedId = activityIdSchema.safeParse(activityId);
+  const parsed = updateActivityInputSchema.safeParse(input);
+
+  if (!parsedId.success) {
+    return repositoryError("invalid_activity_id", "Atividade inválida.");
+  }
+
+  if (!parsed.success) {
+    return repositoryError(
+      "invalid_activity_input",
+      parsed.error.issues[0]?.message ?? "Dados da atividade inválidos.",
+    );
+  }
+
+  const auth = await getAuthenticatedContext();
+
+  if (!auth.ok) {
+    return { ok: false, error: auth.error };
+  }
+
+  const payload: TablesUpdate<"activity_logs"> = {
+    activity_date: parsed.data.activityDate,
+    start_time: parsed.data.startTime,
+    end_time: parsed.data.endTime,
+    group_label: parsed.data.groupLabel,
+    teacher_name: parsed.data.teacherName,
+    description: parsed.data.description,
+    notes: parsed.data.notes,
+  };
+
+  const { data, error } = await auth.supabase
+    .from("activity_logs")
+    .update(payload)
+    .eq("id", parsedId.data)
+    .eq("student_id", auth.userId)
+    .in("status", ["draft", "submitted"])
+    .select(ACTIVITY_COLUMNS)
+    .maybeSingle();
+
+  if (error) {
+    return databaseError(error);
+  }
+
+  if (!data) {
+    return repositoryError(
+      "activity_not_editable",
+      "A atividade não foi encontrada ou já foi revisada.",
+    );
+  }
+
+  return { ok: true, data };
+}
+
+export async function deleteActivity(
+  activityId: string,
+): Promise<ActivityResult<{ id: string }>> {
+  const parsedId = activityIdSchema.safeParse(activityId);
+
+  if (!parsedId.success) {
+    return repositoryError("invalid_activity_id", "Atividade inválida.");
+  }
+
+  const auth = await getAuthenticatedContext();
+
+  if (!auth.ok) {
+    return { ok: false, error: auth.error };
+  }
+
+  const { data, error } = await auth.supabase
+    .from("activity_logs")
+    .delete()
+    .eq("id", parsedId.data)
+    .eq("student_id", auth.userId)
+    .in("status", ["draft", "submitted"])
+    .select("id")
+    .maybeSingle();
+
+  if (error) {
+    return databaseError(error);
+  }
+
+  if (!data) {
+    return repositoryError(
+      "activity_not_deletable",
+      "A atividade não foi encontrada ou já foi revisada.",
+    );
   }
 
   return { ok: true, data };
